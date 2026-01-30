@@ -324,7 +324,7 @@ class Formula:
             return Formula(ns), string[1:]
 
         if ns == '~':
-            subformula, rest = Formula._parse_polish_prefix(string[1:])
+            subformula, rest = Formula._parse_polish(string[1:])
             if subformula is None:
                 return None, rest
             return Formula('~', subformula), rest
@@ -338,11 +338,11 @@ class Formula:
         else:
             return None, "invalid operator"
 
-        first, rest = Formula._parse_polish_prefix(rest)
+        first, rest = Formula._parse_polish(rest)
         if first is None:
             return None, rest
         
-        second, rest = Formula._parse_polish_prefix(rest)
+        second, rest = Formula._parse_polish(rest)
         if second is None:
             return None, rest
 
