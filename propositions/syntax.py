@@ -116,6 +116,7 @@ class Formula:
         if is_unary(self.root):
             return self.root + repr(self.first)
         assert is_binary(self.root)
+        return '(' + repr(self.first) + self.root + repr(self.second) + ')'
 
     def __eq__(self, other: object) -> bool:
         """Compares the current formula with the given one.
@@ -276,6 +277,7 @@ class Formula:
         # Task 1.6
 
         formula, rest = Formula._parse_prefix(string)
+        assert formula is not None and rest == ''
         return formula
 
     def polish(self) -> str:
