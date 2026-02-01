@@ -296,7 +296,7 @@ class Formula:
         return self.root + self.first.polish() + self.second.polish()
 
     @staticmethod
-    def parse_polish(string: str) -> Formula:
+    def _parse_polish_prefix(s: str) -> Tuple[Union[Formula, None], str]:
         """Parses the given polish notation representation into a formula.
 
         Parameters:
@@ -307,46 +307,52 @@ class Formula:
         """
         # Optional Task 1.8
 
-        if string == '':
+        if s == '':
             return None
-        ns = string[0]
+        ns = s[0]
 
         if 'p' <= ns <= 'z':
             i = 1
-            while i < len(string) and string[i].isdigit():
+            while i < len(s) and s[i].isdigit():
                 i += 1
-            name = string[:i]
+            name = s[:i]
             if not is_variable(name):
                 return None, f'invalid variable name {name}'
-            return Formula(name), string[i:]
+            return Formula(name), s[i:]
 
         if ns in {'T', 'F'}:
-            return Formula(ns), string[1:]
+            return Formula(ns), s[1:]
 
         if ns == '~':
-            subformula, rest = Formula._parse_polish(string[1:])
+            subformula, rest = Formula._parse_polish_prefix(s[1:])
             if subformula is None:
                 return None, rest
             return Formula('~', subformula), rest
 
-        if string.startswith('->'):
+        if s.startswith('->'):
             op = '->'
-            rest = string[2:]
+            rest = s[2:]
         elif ns in {'&', '|'}:
             op = ns
-            rest = string[1:]
+            rest = s[1:]
         else:
             return None, "invalid operator"
 
-        first, rest = Formula._parse_polish(rest)
+        first, rest = Formula._parse_polish_prefix(rest)
         if first is None:
             return None, rest
         
-        second, rest = Formula._parse_polish(rest)
+        second, rest = Formula._parse_polish_prefix(rest)
         if second is None:
             return None, rest
 
         return Formula(op, first, second), rest
+
+    @staticmethod
+    def parse_polish(string: str) -> Formula:
+        formula, rest = Formula._parse_polish_prefix(string)
+        assert formula is not None and rest == ''
+        return formula
 
     def substitute_variables(self, substitution_map: Mapping[str, Formula]) -> \
             Formula:
